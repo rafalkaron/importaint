@@ -10,7 +10,7 @@ import re
 import argparse
 
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
-__version__ = "0.1"
+__version__ = "0.2"
 
 def files_list(directory, files_extension):
     """Return a list of files with a given extension in a directory."""
@@ -45,13 +45,16 @@ def main():
     imports_bullet_list = "\n * ".join([str(x) for x in imports])
     output_filepath = args.input_filepath.replace(".css", "_compiled.css")
 
+    if os.path.isfile(output_filepath):
+        os.remove(output_filepath)
+
     print(f"Appending the following files:\n * {imports_bullet_list}\nTo the following file: {output_filepath}")
     
     for i in imports:
         import_str = read_file(i)
-        append_str_as_file(f"/* {i} code*/\n{import_str}", output_filepath)
+        append_str_as_file(f"\n/*!IMPORTAINT; {i} code*/\n{import_str}", output_filepath)
 
-    append_str_as_file("\n/*** Input file code ***/\n", output_filepath)
+    append_str_as_file(f"\n/*!IMPORTAINT; {args.input_filepath} code*/\n", output_filepath)
     input_file_str = read_file(args.input_filepath)
     input_file_code_str = re.sub(r"@import url\(\"(.*.css)\"\);", "", input_file_str)
     append_str_as_file(input_file_code_str, output_filepath)
