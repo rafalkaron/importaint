@@ -42,18 +42,18 @@ def main():
     args = par.parse_args()
     
     imports = get_imports(args.input_filepath)
+    imports_bullet_list = "\n * ".join([str(x) for x in imports])
     output_filepath = args.input_filepath.replace(".css", "_compiled.css")
-    print(imports)
+
+    print(f"Appending the following files:\n * {imports_bullet_list}\nTo the following file: {output_filepath}")
     
     for i in imports:
         import_str = read_file(i)
-        append_str_as_file(import_str, output_filepath)
+        append_str_as_file(f"/* {i} code*/\n{import_str}", output_filepath)
 
     append_str_as_file("\n/*** Input file code ***/\n", output_filepath)
-
     input_file_str = read_file(args.input_filepath)
     input_file_code_str = re.sub(r"@import url\(\"(.*.css)\"\);", "", input_file_str)
-    input_file_code_str = re.sub(r"\n\n", "\n", input_file_str)
     append_str_as_file(input_file_code_str, output_filepath)
 
 
