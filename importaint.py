@@ -82,6 +82,7 @@ def main():
 
     input_file_code_str = re.sub(r"@import url\(\"(.*.css)\"\);", "", read_file(args.input_filepath))
     output_str = output_str + f"\n/*!IMPORTAINT; {args.input_filepath} code*/\n" + input_file_code_str
+    print(f"Saving to: {os.path.abspath(output_filepath)}")
     save_str_as_file(output_str, output_filepath)
     
 __main__ = os.path.basename(os.path.abspath(sys.argv[0])).replace(".py","")
