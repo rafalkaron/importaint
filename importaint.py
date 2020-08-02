@@ -14,13 +14,6 @@ __version__ = "0.4"
 
 re_imports = re.compile(r"@import url\(\"(.*.css)\"\);")
 
-def files_list(directory, files_extension):
-    """Return a list of files with a given extension in a directory."""
-    files_list_lowercase = glob.glob(f"{directory}/*.{files_extension.lower()}")
-    files_list_uppercase = glob.glob(f"{directory}/*.{files_extension.upper()}")
-    files_list = files_list_lowercase + files_list_uppercase
-    return files_list
-
 def read_file(filepath):
     """Return a string with file contents."""
     with open(filepath, mode='rt', encoding='utf-8') as f:
