@@ -33,23 +33,16 @@ def get_imports(filepath):
         imports_absolute.append(imp_absolute)
     return imports_absolute
 
-def append_str(str_list, output_filepath):
-    """Appends a string or a list of strings to a file and return the file path."""
-    if type(str_list) is list:    
-        print(f"Appended the following files to {output_filepath}:")
-        for item in str_list:
-            try:
-                item_str = read_file(item)
-                print(f" [+] {item}")
-            except FileNotFoundError:
-                print(f" [!] {item} [file does not exist]")
-                continue
-            with open(output_filepath, "a", encoding="utf-8") as file:
-                file.write(f"\n/*!IMPORTAINT; {item} code*/\n{item_str}")
-    elif type(str_list) is str:
-        with open(output_filepath, "a", encoding="utf-8") as file:
-            file.write(str_list)
-    return output_filepath
+def save_str_as_file(str, filepath):
+    """Save a string to a file and return the file path.
+    
+    Keyword arguments:
+    str - the string that you want to save as in a file
+    filepath - the path to the file that you want to save the string to
+    """
+    with open(filepath, "w", encoding="utf-8") as file:
+        file.write(str)
+    return filepath
 
 def main():
     par = argparse.ArgumentParser(description="Merge a CSS file with imports into a single file.")
@@ -67,13 +60,15 @@ def main():
     for imp in imports:
         imp_str = read_file(imp)
         imports_str.append(f"\n/*!IMPORTAINT; {imp} code*/\n" + imp_str)
+    
+    output_str = "\n\n".join(imports_str)
+    
+    #while len(get_imports(output_str)) != 0:
+    #    main()
 
     input_file_code_str = re.sub(r"@import url\(\"(.*.css)\"\);", "", read_file(args.input_filepath))
-
-    output_str = "\n\n".join(imports_str)
     output_str = output_str + f"\n/*!IMPORTAINT; {args.input_filepath} code*/\n" + input_file_code_str
-
-    append_str(output_str, output_filepath)
+    save_str_as_file(output_str, output_filepath)
 
 
     """
