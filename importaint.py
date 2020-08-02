@@ -33,13 +33,21 @@ def get_imports(filepath):
         imports_absolute.append(imp_absolute)
     return imports_absolute
 
+def merge_imports(imports):
+    imports_str = []
+    print(f"Merging the following imports:")
+    for imp in imports:
+        try:
+            imp_str = read_file(imp)
+            print(f" [+] {imp}")
+        except FileNotFoundError:
+            print(f" [!] {imp} [file not found]")
+        imports_str.append(f"\n/*!IMPORTAINT; {imp} code*/\n" + imp_str)
+    output_str = "\n\n".join(imports_str)
+    return output_str
+
 def save_str_as_file(str, filepath):
-    """Save a string to a file and return the file path.
-    
-    Keyword arguments:
-    str - the string that you want to save as in a file
-    filepath - the path to the file that you want to save the string to
-    """
+    """Save a string to a file and return the file path."""
     with open(filepath, "w", encoding="utf-8") as file:
         file.write(str)
     return filepath
@@ -51,20 +59,11 @@ def main():
     args = par.parse_args()
     
     output_filepath = args.input_filepath.replace(".css", "_compiled.css")
-    if os.path.isfile(output_filepath):
-        os.remove(output_filepath)
-    
-    imports = get_imports(args.input_filepath)
-    imports_str = []
+    output_str = merge_imports(get_imports(args.input_filepath))
 
-    for imp in imports:
-        imp_str = read_file(imp)
-        imports_str.append(f"\n/*!IMPORTAINT; {imp} code*/\n" + imp_str)
-    
-    output_str = "\n\n".join(imports_str)
-    
-    #while len(get_imports(output_str)) != 0:
-    #    main()
+    if len(re.findall(r"@import url\(\"(.*.css)\"\);", output_str)) != 0:
+        print("Outstanding import(s)")
+        #output_str = merge_imports(get_imports(output_str))
 
     input_file_code_str = re.sub(r"@import url\(\"(.*.css)\"\);", "", read_file(args.input_filepath))
     output_str = output_str + f"\n/*!IMPORTAINT; {args.input_filepath} code*/\n" + input_file_code_str
