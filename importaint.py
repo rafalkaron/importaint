@@ -10,7 +10,7 @@ import re
 import argparse
 
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
-__version__ = "0.2"
+__version__ = "0.3"
 
 def files_list(directory, files_extension):
     """Return a list of files with a given extension in a directory."""
@@ -56,14 +56,13 @@ def main():
     output_filepath = args.input_filepath.replace(".css", "_compiled.css")
     if os.path.isfile(output_filepath):
         os.remove(output_filepath)
-
+    
+    #while len(get_imports(args.input_filepath)) != 0:
     append_str(get_imports(args.input_filepath), output_filepath)
 
     append_str(f"\n/*!IMPORTAINT; {args.input_filepath} code*/\n", output_filepath)
     input_file_code_str = re.sub(r"@import url\(\"(.*.css)\"\);", "", read_file(args.input_filepath))
     append_str(input_file_code_str, output_filepath)
-    
-
 
 __main__ = os.path.basename(os.path.abspath(sys.argv[0])).replace(".py","")
 if __name__ == "__main__":
