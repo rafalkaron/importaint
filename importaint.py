@@ -61,15 +61,33 @@ def main():
     if os.path.isfile(output_filepath):
         os.remove(output_filepath)
     
+    imports = get_imports(args.input_filepath)
+    imports_str = []
+
+    for imp in imports:
+        imp_str = read_file(imp)
+        imports_str.append(f"\n/*!IMPORTAINT; {imp} code*/\n" + imp_str)
+
+    input_file_code_str = re.sub(r"@import url\(\"(.*.css)\"\);", "", read_file(args.input_filepath))
+
+    output_str = "\n\n".join(imports_str)
+    output_str = output_str + f"\n/*!IMPORTAINT; {args.input_filepath} code*/\n" + input_file_code_str
+
+    append_str(output_str, output_filepath)
+
+
+    """
     append_str(get_imports(args.input_filepath), output_filepath)
 
     append_str(f"\n/*!IMPORTAINT; {args.input_filepath} code*/\n", output_filepath)
     input_file_code_str = re.sub(r"@import url\(\"(.*.css)\"\);", "", read_file(args.input_filepath))
     append_str(input_file_code_str, output_filepath)
-
-    #while len(get_imports(args.input_filepath)) != 0:
-    #    main()
-
+    
+    while len(get_imports(output_filepath)) != 0:
+        output_file = read_file(output_filepath)
+        output_file_updated = re.sub(r"@import url\(\"(.*.css)\"\);", "", read_file(args.input_filepath))
+    """
+    
 __main__ = os.path.basename(os.path.abspath(sys.argv[0])).replace(".py","")
 if __name__ == "__main__":
     main()
