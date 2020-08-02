@@ -33,6 +33,15 @@ def get_imports(filepath):
         imports_absolute.append(imp_absolute)
     return imports_absolute
 
+def get_imports_str(str):
+    input_str = str
+    imports = re.findall(r"@import url\(\"(.*.css)\"\);", input_str)
+    imports_absolute = []
+    for imp in imports:
+        imp_absolute = os.path.abspath(imp)
+        imports_absolute.append(imp_absolute)
+    return imports_absolute
+
 def merge_imports(imports):
     imports_str = []
     print(f"Merging the following imports:")
@@ -53,17 +62,18 @@ def save_str_as_file(str, filepath):
     return filepath
 
 def main():
-    par = argparse.ArgumentParser(description="Merge a CSS file with imports into a single file.")
-    par.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
-    par.add_argument("input_filepath", type=str, help="A CSS file with imports.")
-    args = par.parse_args()
-    
     output_filepath = args.input_filepath.replace(".css", "_compiled.css")
     output_str = merge_imports(get_imports(args.input_filepath))
 
-    if len(re.findall(r"@import url\(\"(.*.css)\"\);", output_str)) != 0:
+    outstanding_imports = re.findall(r"@import url\(\"(.*.css)\"\);", output_str) # checks if there are some outstanding, indirect imports
+    while len(outstanding_imports) != 0:
         print("Outstanding import(s)")
-        #output_str = merge_imports(get_imports(output_str))
+        outstanding_str = merge_imports(get_imports_str(output_str)) # resolves the outstanding imports
+        output_str = re.sub(r"@import url\(\"(.*.css)\"\);", outstanding_str, output_str)
+        if len(re.findall(r"@import url\(\"(.*.css)\"\);", output_str)) != 0:
+            continue
+        else:
+            break
 
     input_file_code_str = re.sub(r"@import url\(\"(.*.css)\"\);", "", read_file(args.input_filepath))
     output_str = output_str + f"\n/*!IMPORTAINT; {args.input_filepath} code*/\n" + input_file_code_str
@@ -84,4 +94,8 @@ def main():
     
 __main__ = os.path.basename(os.path.abspath(sys.argv[0])).replace(".py","")
 if __name__ == "__main__":
+    par = argparse.ArgumentParser(description="Merge a CSS file with imports into a single file.")
+    par.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
+    par.add_argument("input_filepath", type=str, help="A CSS file with imports.")
+    args = par.parse_args()
     main()
