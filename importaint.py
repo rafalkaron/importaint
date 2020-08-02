@@ -12,6 +12,8 @@ import argparse
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
 __version__ = "0.4"
 
+re_imports = re.compile(r"@import url\(\"(.*.css)\"\);")
+
 def files_list(directory, files_extension):
     """Return a list of files with a given extension in a directory."""
     files_list_lowercase = glob.glob(f"{directory}/*.{files_extension.lower()}")
@@ -26,7 +28,7 @@ def read_file(filepath):
 
 def get_imports(filepath):
     input_str = read_file(filepath)
-    imports = re.findall(r"@import url\(\"(.*.css)\"\);", input_str)
+    imports = re_imports.findall(input_str)
     imports_absolute = []
     for imp in imports:
         imp_absolute = os.path.abspath(imp)
@@ -35,7 +37,7 @@ def get_imports(filepath):
 
 def get_imports_str(str):
     input_str = str
-    imports = re.findall(r"@import url\(\"(.*.css)\"\);", input_str)
+    imports = re_imports.findall(input_str)
     imports_absolute = []
     for imp in imports:
         imp_absolute = os.path.abspath(imp)
@@ -71,11 +73,11 @@ def main():
     print(f"Merging the following imports:")
     output_str = merge_imports(get_imports(args.input_filepath))
     
-    outstanding_imports = re.findall(r"@import url\(\"(.*.css)\"\);", output_str) # checks if there are some outstanding, indirect imports
+    outstanding_imports = re_imports.findall(output_str) # checks if there are some outstanding, indirect imports
     while len(outstanding_imports) != 0:
         outstanding_str = merge_imports(get_imports_str(output_str)) # resolves the outstanding imports
-        output_str = re.sub(r"@import url\(\"(.*.css)\"\);", outstanding_str, output_str)
-        if len(re.findall(r"@import url\(\"(.*.css)\"\);", output_str)) != 0:
+        output_str = re_imports.sub(outstanding_str, output_str)
+        if len(re_imports.findall(output_str)) != 0:
             continue
         else:
             break
