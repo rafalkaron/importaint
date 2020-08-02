@@ -27,7 +27,11 @@ def read_file(filepath):
 def get_imports(filepath):
     input_str = read_file(filepath)
     imports = re.findall(r"@import url\(\"(.*.css)\"\);", input_str)
-    return imports
+    imports_absolute = []
+    for imp in imports:
+        imp_absolute = os.path.abspath(imp)
+        imports_absolute.append(imp_absolute)
+    return imports_absolute
 
 def append_str(str_list, output_filepath):
     """Appends a string or a list of strings to a file and return the file path."""
@@ -57,12 +61,14 @@ def main():
     if os.path.isfile(output_filepath):
         os.remove(output_filepath)
     
-    #while len(get_imports(args.input_filepath)) != 0:
     append_str(get_imports(args.input_filepath), output_filepath)
 
     append_str(f"\n/*!IMPORTAINT; {args.input_filepath} code*/\n", output_filepath)
     input_file_code_str = re.sub(r"@import url\(\"(.*.css)\"\);", "", read_file(args.input_filepath))
     append_str(input_file_code_str, output_filepath)
+
+    #while len(get_imports(args.input_filepath)) != 0:
+    #    main()
 
 __main__ = os.path.basename(os.path.abspath(sys.argv[0])).replace(".py","")
 if __name__ == "__main__":
