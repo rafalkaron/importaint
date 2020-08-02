@@ -14,6 +14,15 @@ __version__ = "0.4"
 
 re_imports = re.compile(r"@import url\(\"(.*.css)\"\);")
 
+def exe_dir():
+    """Return the executable directory."""
+    if getattr(sys, 'frozen', False):
+        exe_path = os.path.dirname(sys.executable)
+        exe_path = os.path.dirname(os.path.dirname(os.path.dirname(exe_path))) # Uncomment for macOS app builds
+    elif __file__:
+        exe_path = os.path.dirname(__file__)
+    return exe_path
+
 def read_file(filepath):
     """Return a string with file contents."""
     with open(filepath, mode='rt', encoding='utf-8') as f:
@@ -44,7 +53,6 @@ def merge_imports(imports):
             imp_str = read_file(imp)
             print(f" [+] {imp}")
             imports_str.append(f"\n/*!IMPORTAINT; {imp} code*/\n" + imp_str)
-
         except FileNotFoundError:
             print(f" [!] {imp} [file not found]")
     output_str = "\n\n".join(imports_str)
@@ -61,6 +69,8 @@ def main():
     par.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
     par.add_argument("input_filepath", type=str, help="A CSS file with imports.")
     args = par.parse_args()
+
+    os.chdir(exe_dir())
 
     output_filepath = args.input_filepath.replace(".css", "_compiled.css")
     print(f"Merging the following imports:")
