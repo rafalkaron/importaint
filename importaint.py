@@ -10,7 +10,7 @@ import re
 import argparse
 
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
-__version__ = "0.5"
+__version__ = "0.6"
 
 re_imports_filepath = re.compile(r"@import url\(\"(.*.css)\"\);") # returns a tuple with full import str and the filepath
 re_imports = re.compile(r"@import url\(\".*.css\"\);")
@@ -39,7 +39,7 @@ def resolve_imports(output_str):
                 output_str = re.sub(f"@import url\(\"({imp_filepath})\"\);", imp_str, output_str)
                 print(f" [+] {imp_filepath_abs}")
             except FileNotFoundError:
-                output_str = re.sub(f"@import url\(\"({imp_filepath})\"\);", "/* !importaint; removed broken import */", output_str)
+                output_str = re.sub(f"@import url\(\"({imp_filepath})\"\);", "", output_str)
                 print(f" [!] {imp_filepath_abs} [file not found]")
         if len(re_imports.findall(output_str)) != 0:
             continue
