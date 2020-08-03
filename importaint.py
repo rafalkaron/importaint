@@ -34,9 +34,13 @@ def resolve_imports(output_str):
         for imp in re_imports.findall(output_str):
             imp_filepath = "".join(re_imports_filepath.findall(imp))
             imp_filepath_abs = os.path.abspath(imp_filepath)
-            print(f" [+] {imp_filepath_abs}")
-            imp_str = read_file(imp_filepath_abs)
-            output_str = re.sub(f"@import url\(\"({imp_filepath})\"\);", imp_str, output_str)
+            try:
+                imp_str = read_file(imp_filepath_abs)
+                output_str = re.sub(f"@import url\(\"({imp_filepath})\"\);", imp_str, output_str)
+                print(f" [+] {imp_filepath_abs}")
+            except FileNotFoundError:
+                output_str = re.sub(f"@import url\(\"({imp_filepath})\"\);", "/* !importaint; removed broken import */", output_str)
+                print(f" [!] {imp_filepath_abs} [file not found]")
         if len(re_imports.findall(output_str)) != 0:
             continue
         else:
