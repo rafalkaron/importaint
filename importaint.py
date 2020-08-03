@@ -10,7 +10,7 @@ import re
 import argparse
 
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
-__version__ = "0.6"
+__version__ = "0.7"
 
 re_imports_filepath = re.compile(r"@import url\(\"(.*.css)\"\);") # returns a tuple with full import str and the filepath
 re_imports = re.compile(r"@import url\(\".*.css\"\);")
