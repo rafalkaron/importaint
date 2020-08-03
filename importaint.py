@@ -12,7 +12,8 @@ import argparse
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
 __version__ = "0.5"
 
-re_imports = re.compile(r"@import url\(\"(.*.css)\"\);")
+re_imports_filepath = re.compile(r"@import url\(\"(.*.css)\"\);") # returns a tuple with full import str and the filepath
+re_imports = re.compile(r"@import url\(\".*.css\"\);")
 
 def exe_dir():
     """Return the executable directory."""
@@ -28,18 +29,9 @@ def read_file(filepath):
     with open(filepath, mode='rt', encoding='utf-8') as f:
         return f.read()
 
-def get_imports(filepath):
-    input_str = read_file(filepath)
+def get_imports(input_str):
     imports = re_imports.findall(input_str)
-    imports_absolute = []
-    for imp in imports:
-        imp_absolute = os.path.abspath(imp)
-        imports_absolute.append(imp_absolute)
-    return imports_absolute
-
-def get_imports_str(str):
-    input_str = str
-    imports = re_imports.findall(input_str)
+    print(imports)
     imports_absolute = []
     for imp in imports:
         imp_absolute = os.path.abspath(imp)
@@ -71,9 +63,18 @@ def main():
     args = par.parse_args()
 
     os.chdir(exe_dir())
+    output_str = read_file(args.input_filepath)
+    output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
 
-    output_filepath = args.input_filepath.replace(".css", "_compiled.css")
-    print(f"Merging the following imports:")
+    for imp in re_imports.findall(output_str):
+        imp_filepath = os.path.abspath("".join(re.findall(r"@import url\(\"(.*.css)\"\);", imp)))
+        imp_str = read_file(imp_filepath)
+        output_str = re_imports.sub(imp_str, output_str)
+    
+    print(f"Saving to: {output_filepath}")
+    save_str_as_file(output_str, output_filepath)
+
+    """
     output_str = merge_imports(get_imports(args.input_filepath))
     
     outstanding_imports = re_imports.findall(output_str) # checks if there are some outstanding, indirect imports
@@ -87,8 +88,8 @@ def main():
 
     input_file_code_str = re.sub(r"@import url\(\"(.*.css)\"\);", "", read_file(args.input_filepath))
     output_str = output_str + f"\n/*!IMPORTAINT; {args.input_filepath} code*/\n" + input_file_code_str
-    print(f"Saving to: {os.path.abspath(output_filepath)}")
-    save_str_as_file(output_str, output_filepath)
+    """
+
     
 __main__ = os.path.basename(os.path.abspath(sys.argv[0])).replace(".py","")
 if __name__ == "__main__":
