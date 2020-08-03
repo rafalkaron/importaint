@@ -73,10 +73,10 @@ def main():
             imp_filepath_abs = os.path.abspath(imp_filepath)
             print(f" * {imp_filepath_abs}")
             imp_str = read_file(imp_filepath_abs)
-            print(imp_str)
             output_str = re.sub(f"@import url\(\"({imp_filepath})\"\);", imp_str, output_str)
         if len(re_imports.findall(output_str)) != 0:
             continue
+            print("another round")
         else:
             break
 
