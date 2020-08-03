@@ -41,6 +41,7 @@ def resolve_imports(output_str):
             continue
         else:
             break
+    return output_str
 
 def save_str_as_file(str, filepath):
     """Save a string to a file and return the file path."""
@@ -59,7 +60,7 @@ def main():
     output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
 
     print("Resolving the following imports:")
-    resolve_imports(output_str)
+    output_str = resolve_imports(output_str)
 
     print(f"Saving to: {output_filepath}")
     save_str_as_file(output_str, output_filepath)
