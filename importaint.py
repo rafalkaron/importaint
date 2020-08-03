@@ -67,14 +67,19 @@ def main():
     output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
 
     print("Resolving the following imports:")
-    for imp in re_imports.findall(output_str):
-        imp_fil = "".join(re.findall(r"@import url\(\"(.*.css)\"\);", imp))
-        imp_filepath = os.path.abspath("".join(re.findall(r"@import url\(\"(.*.css)\"\);", imp)))
-        print(f" * {imp_filepath}")
-        imp_str = read_file(imp_filepath)
-        print(imp_str)
-        output_str = re.sub(f"@import url\(\"({imp_fil})\"\);", imp_str, output_str)
-    
+    while len(re_imports.findall(output_str)) != 0:
+        for imp in re_imports.findall(output_str):
+            imp_filepath = "".join(re.findall(r"@import url\(\"(.*.css)\"\);", imp))
+            imp_filepath_abs = os.path.abspath(imp_filepath)
+            print(f" * {imp_filepath_abs}")
+            imp_str = read_file(imp_filepath_abs)
+            print(imp_str)
+            output_str = re.sub(f"@import url\(\"({imp_filepath})\"\);", imp_str, output_str)
+        if len(re_imports.findall(output_str)) != 0:
+            continue
+        else:
+            break
+
     print(f"Saving to: {output_filepath}")
     save_str_as_file(output_str, output_filepath)
 
