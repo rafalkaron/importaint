@@ -38,6 +38,9 @@ def resolve_imports(output_str):
                 imp_str = read_file(imp_filepath_abs)
                 output_str = re.sub(f"@import url\(\"({imp_filepath})\"\);", imp_str, output_str)
                 print(f" [+] {imp_filepath_abs}")
+                indirect_imports = re_imports_filepath.findall(imp_str)
+                for indirect_import in indirect_imports:
+                    output_str = re.sub(indirect_import, f"{os.path.dirname(imp_filepath_abs)}/{indirect_import}", output_str)
             except FileNotFoundError:
                 output_str = re.sub(f"@import url\(\"({imp_filepath})\"\);", "", output_str)
                 print(f" [!] {imp_filepath_abs} [file not found]")
