@@ -10,7 +10,7 @@ import re
 import argparse
 
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
-__version__ = "0.7"
+__version__ = "0.8.1"
 
 re_imports_filepath = re.compile(r"@import url\(\"(.*.css)\"\);") # returns a tuple with full import str and the filepath
 re_imports = re.compile(r"@import url\(\".*.css\"\);")
@@ -31,7 +31,7 @@ def read_file(filepath):
 
 def resolve_imports(output_str):
     while len(re_imports.findall(output_str)) != 0:
-        output_str = re.sub(r"/[*]+.*[*]+/", "", output_str, flags=re.DOTALL)
+        output_str = re.sub(r"/\*[^*]*.*?\*/", "", output_str, flags=re.DOTALL)
         for imp in re_imports.findall(output_str):
             imp_filepath = "".join(re_imports_filepath.findall(imp))
             imp_filepath_abs = os.path.abspath(imp_filepath)
@@ -43,7 +43,7 @@ def resolve_imports(output_str):
                 for indirect_import in indirect_imports:
                     if not os.path.isfile(indirect_import):
                         output_str = re.sub(indirect_import, f"{os.path.dirname(imp_filepath_abs)}/{indirect_import}", output_str)
-                    output_str = re.sub(r"/[*]+.*[*]+/", "", output_str, flags=re.DOTALL)
+                    output_str = re.sub(r"/\*[^*]*.*?\*/", "", output_str, flags=re.DOTALL)
             except FileNotFoundError:
                 output_str = re.sub(f"@import url\(\"({imp_filepath})\"\);", "", output_str)
                 print(f" [!] {imp_filepath_abs} [file not found]")
@@ -51,7 +51,7 @@ def resolve_imports(output_str):
             continue
         else:
             break
-    output_str = re.sub(r"/[*]+.*[*]+/", "", output_str, flags=re.DOTALL)
+    output_str = re.sub(r"/\*[^*]*.*?\*/", "", output_str, flags=re.DOTALL)
     return output_str
 
 def save_str_as_file(str, filepath):
@@ -63,6 +63,7 @@ def save_str_as_file(str, filepath):
 def main():
     par = argparse.ArgumentParser(description="Merge a CSS file with imports into a single file.")
     par.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
+    par.add_argument("-m", "--minify", action="store_true", help="Minify CSS.")
     par.add_argument("input_filepath", type=str, help="A CSS file with imports.")
     args = par.parse_args()
 
@@ -73,8 +74,14 @@ def main():
     print("Resolving the following imports:")
     output_str = resolve_imports(output_str)
 
+    if args.minify:
+        print("Minified output!")
+        output_str = output_str.replace("\n", "")
+    else:
+        output_str = output_str.strip().replace("\n\n", "\n")
+
     print(f"Saving to: {output_filepath}")
-    save_str_as_file(output_str.strip().replace("\n\n", "\n"), output_filepath)
+    save_str_as_file(output_str, output_filepath)
     
 __main__ = os.path.basename(os.path.abspath(sys.argv[0])).replace(".py","")
 if __name__ == "__main__":
