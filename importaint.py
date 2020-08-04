@@ -74,7 +74,7 @@ def main():
     output_str = resolve_imports(output_str)
 
     print(f"Saving to: {output_filepath}")
-    save_str_as_file(output_str, output_filepath)
+    save_str_as_file(output_str.strip().replace("\n\n", "\n"), output_filepath)
     
 __main__ = os.path.basename(os.path.abspath(sys.argv[0])).replace(".py","")
 if __name__ == "__main__":
