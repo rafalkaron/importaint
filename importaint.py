@@ -31,6 +31,7 @@ def read_file(filepath):
 
 def resolve_imports(output_str):
     while len(re_imports.findall(output_str)) != 0:
+        output_str = re.sub(r"/[*]+.*[*]+/", "", output_str, flags=re.DOTALL)
         for imp in re_imports.findall(output_str):
             imp_filepath = "".join(re_imports_filepath.findall(imp))
             imp_filepath_abs = os.path.abspath(imp_filepath)
@@ -42,6 +43,7 @@ def resolve_imports(output_str):
                 for indirect_import in indirect_imports:
                     if not os.path.isfile(indirect_import):
                         output_str = re.sub(indirect_import, f"{os.path.dirname(imp_filepath_abs)}/{indirect_import}", output_str)
+                    output_str = re.sub(r"/[*]+.*[*]+/", "", output_str, flags=re.DOTALL)
             except FileNotFoundError:
                 output_str = re.sub(f"@import url\(\"({imp_filepath})\"\);", "", output_str)
                 print(f" [!] {imp_filepath_abs} [file not found]")
@@ -49,6 +51,7 @@ def resolve_imports(output_str):
             continue
         else:
             break
+    output_str = re.sub(r"/[*]+.*[*]+/", "", output_str, flags=re.DOTALL)
     return output_str
 
 def save_str_as_file(str, filepath):
