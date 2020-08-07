@@ -12,8 +12,10 @@ import argparse
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
 __version__ = "0.8.1"
 
-re_imports_filepath = re.compile(r"@import url\(\"(.*.css)\"\);") # returns a tuple with full import str and the filepath
+re_imports_filepath = re.compile(r"@import url\(\"(.*.css)\"\);") # returns a tuple with full import str and the filepath #add or operand for ' ' imports
 re_imports = re.compile(r"@import url\(\".*.css\"\);")
+re_comments = re.compile(r"/\*[^*]*.*?\*/", flags=re.DOTALL)
+re_font_imports = re.compile(r"(@import url\((\"|\').*(\"|\')\);)")
 
 def exe_dir():
     """Return the executable directory."""
@@ -31,27 +33,27 @@ def read_file(filepath):
 
 def resolve_imports(output_str):
     while len(re_imports.findall(output_str)) != 0:
-        output_str = re.sub(r"/\*[^*]*.*?\*/", "", output_str, flags=re.DOTALL)
+        output_str = re.sub(re_comments, "", output_str)
         for imp in re_imports.findall(output_str):
             imp_filepath = "".join(re_imports_filepath.findall(imp))
             imp_filepath_abs = os.path.abspath(imp_filepath)
             try:
                 imp_str = read_file(imp_filepath_abs)
-                output_str = re.sub(f"@import url\(\"({imp_filepath})\"\);", imp_str, output_str)
+                output_str = re.sub(f"@import url\((\"|\')({imp_filepath})(\"|\')\);", imp_str, output_str)
                 print(f" [+] {imp_filepath_abs}")
                 indirect_imports = re_imports_filepath.findall(imp_str)
                 for indirect_import in indirect_imports:
                     if not os.path.isfile(indirect_import):
                         output_str = re.sub(indirect_import, f"{os.path.dirname(imp_filepath_abs)}/{indirect_import}", output_str)
-                    output_str = re.sub(r"/\*[^*]*.*?\*/", "", output_str, flags=re.DOTALL)
+                    output_str = re.sub(re_comments, "", output_str)
             except FileNotFoundError:
-                output_str = re.sub(f"@import url\(\"({imp_filepath})\"\);", "", output_str)
+                output_str = re.sub(f"@import url\((\"|\')({imp_filepath})(\"|\')\);", "", output_str)
                 print(f" [!] {imp_filepath_abs} [file not found]")
         if len(re_imports.findall(output_str)) != 0:
             continue
         else:
             break
-    output_str = re.sub(r"/\*[^*]*.*?\*/", "", output_str, flags=re.DOTALL)
+    output_str = re.sub(re_comments, "", output_str)
     return output_str
 
 def save_str_as_file(str, filepath):
@@ -72,15 +74,24 @@ def main():
     output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
 
     print("Resolving the following imports:")
-    output_str = resolve_imports(output_str)
+    imports_placeholder = "/* imports placeholder */"
+    re_imports_placeholder = re.compile(r"/\* imports placeholder \*/")
+    output_str = imports_placeholder + resolve_imports(output_str)
+
+    font_imports = re_font_imports.findall(output_str)
+    font_imports = [i[0] for i in font_imports]
+    font_imports = "\n".join(font_imports)
+
+    output_str = re.sub(re_font_imports, "", output_str)
+    output_str = re.sub(re_imports_placeholder, font_imports, output_str)
 
     if args.minify:
-        print("Minified output!")
-        output_str = output_str.replace("\n", "")
-    else:
+        print(f"Saving minified CSS to: {output_filepath}")
+        output_str = output_str.strip().replace("\n", "").replace(" ", "").replace("@importurl", "@import url") # This messes up font improts/added ugly workaround
+    elif not args.minify:
         output_str = output_str.strip().replace("\n\n", "\n")
-
-    print(f"Saving to: {output_filepath}")
+        print(f"Saving CSS to: {output_filepath}")
+    
     save_str_as_file(output_str, output_filepath)
     
 __main__ = os.path.basename(os.path.abspath(sys.argv[0])).replace(".py","")
