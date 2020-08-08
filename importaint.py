@@ -12,8 +12,7 @@ import argparse
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
 __version__ = "0.8.1"
 
-re_imports_filepath = re.compile(r"@import url\(\"(.*.css)\"\);") # returns a tuple with full import str and the filepath #add or operand for ' ' imports
-re_imports = re.compile(r"@import url\(\".*.css\"\);")
+re_imports = re.compile(r"(@import url\(\"(.*.css)\"\);)") # returns a tuple with full import str and the filepath #add or operand for ' ' imports
 re_comments = re.compile(r"/\*[^*]*.*?\*/", flags=re.DOTALL)
 re_font_imports = re.compile(r"(@import url\((\"|\').*(\"|\')\);)")
 
@@ -32,27 +31,35 @@ def read_file(filepath):
         return f.read()
 
 def resolve_imports(output_str):
-    while len(re_imports.findall(output_str)) != 0:
+
+    while True:
+        imports = re_imports.findall(output_str)
         output_str = re.sub(re_comments, "", output_str)
-        for imp in re_imports.findall(output_str):
-            imp_filepath = "".join(re_imports_filepath.findall(imp))
-            imp_filepath_abs = os.path.abspath(imp_filepath)
+        for imp in imports:
             try:
-                imp_str = read_file(imp_filepath_abs)
-                output_str = re.sub(f"@import url\((\"|\')({imp_filepath})(\"|\')\);", imp_str, output_str)
-                print(f" [+] {imp_filepath_abs}")
-                indirect_imports = re_imports_filepath.findall(imp_str)
-                for indirect_import in indirect_imports:
-                    if not os.path.isfile(indirect_import):
-                        output_str = re.sub(indirect_import, f"{os.path.dirname(imp_filepath_abs)}/{indirect_import}", output_str)
-                    output_str = re.sub(re_comments, "", output_str)
+                import_full = imp[0]
+                import_filepath = imp[1]
+                import_filepath_abs = os.path.abspath(import_filepath)            
+                import_str = read_file(import_filepath_abs)
+                output_str = output_str.replace(import_full, import_str)
+                print(f" [+] {import_filepath_abs}")
+                
+                indirect_imports = re_imports.findall(import_str)
+                for indirect_imp in indirect_imports:
+                    indirect_import_filepath = indirect_imp[1]
+                    indirect_import_filepath_abs = os.path.abspath(indirect_import_filepath)
+                    if not os.path.isfile(indirect_import_filepath_abs):
+                        output_str = re.sub(indirect_import_filepath, f"{os.path.dirname(import_filepath_abs)}/{indirect_import_filepath}", output_str)
+                        output_str = re.sub(re_comments, "", output_str)
             except FileNotFoundError:
-                output_str = re.sub(f"@import url\((\"|\')({imp_filepath})(\"|\')\);", "", output_str)
-                print(f" [!] {imp_filepath_abs} [file not found]")
-        if len(re_imports.findall(output_str)) != 0:
-            continue
-        else:
+                output_str = output_str.replace(import_full, "")
+                print(f" [!] {import_filepath_abs} [file not found]")
+            output_str = re.sub(re_comments, "", output_str)
+        if len(imports) == 0:
             break
+        else:
+            continue
+ 
     output_str = re.sub(re_comments, "", output_str)
     return output_str
 
@@ -72,6 +79,8 @@ def main():
     os.chdir(exe_dir())
     output_str = read_file(args.input_filepath)
     output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
+    
+    
 
     print("Resolving the following imports:")
     imports_placeholder = "/* imports placeholder */"
