@@ -12,7 +12,7 @@ import argparse
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
 __version__ = "0.8.1"
 
-re_imports = re.compile(r"(@import url\(\"(.*.css)\"\);)") # returns a tuple with full import str and the filepath #add or operand for ' ' imports
+re_imports = re.compile(r"(@import url\((\"|\')(.*.css)(\"|\')\);)") # returns a tuple with full import str and the filepath #add or operand for ' ' imports
 re_comments = re.compile(r"/\*[^*]*.*?\*/", flags=re.DOTALL)
 re_font_imports = re.compile(r"(@import url\((\"|\').*(\"|\')\);)")
 
@@ -31,22 +31,21 @@ def read_file(filepath):
         return f.read()
 
 def resolve_imports(output_str):
-
+    print("Resolving the following imports:")
     while True:
         imports = re_imports.findall(output_str)
         output_str = re.sub(re_comments, "", output_str)
         for imp in imports:
             try:
                 import_full = imp[0]
-                import_filepath = imp[1]
+                import_filepath = imp[2]
                 import_filepath_abs = os.path.abspath(import_filepath)            
                 import_str = read_file(import_filepath_abs)
                 output_str = output_str.replace(import_full, import_str)
                 print(f" [+] {import_filepath_abs}")
-                
                 indirect_imports = re_imports.findall(import_str)
                 for indirect_imp in indirect_imports:
-                    indirect_import_filepath = indirect_imp[1]
+                    indirect_import_filepath = indirect_imp[2]
                     indirect_import_filepath_abs = os.path.abspath(indirect_import_filepath)
                     if not os.path.isfile(indirect_import_filepath_abs):
                         output_str = re.sub(indirect_import_filepath, f"{os.path.dirname(import_filepath_abs)}/{indirect_import_filepath}", output_str)
@@ -79,10 +78,7 @@ def main():
     os.chdir(exe_dir())
     output_str = read_file(args.input_filepath)
     output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
-    
-    
 
-    print("Resolving the following imports:")
     imports_placeholder = "/* imports placeholder */"
     re_imports_placeholder = re.compile(r"/\* imports placeholder \*/")
     output_str = imports_placeholder + resolve_imports(output_str)
