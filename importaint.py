@@ -18,7 +18,7 @@ re_external_imports = re.compile(r"(https://|http://)")
 re_font_imports = re.compile(r"(@import url\((\"|\').*(\"|\')\);)")
 re_font_imports_placeholder = re.compile(r"/\* imports placeholder \*/")
 re_comments = re.compile(r"/\*[^*]*.*?\*/", flags=re.DOTALL)
-re_commented_imports = re.compile(r"/{1}(\*|\n){1,}(.*(@import.*;))(\*|\n){1,}/{1}")
+re_commented_imports = re.compile(r"^(/\*)(\*|\n|.)*?(@import url\(.*.css.*\);)(\*|\n|.)*?(\*/)$", flags=re.MULTILINE)
 
 def exe_dir():
     """Return the executable directory."""
@@ -48,7 +48,7 @@ def resolve_css_imports(output_str):
         print("Resolving the following imports:")
         while True:
             imports = re_css_imports.findall(output_str)
-            output_str = re.sub(re_comments, "/* !IMPORTAINT: removed a comment */", output_str)
+            output_str = re.sub(re_comments, "", output_str)
             for imp in imports:
                 try:
                     import_full = imp[0]
@@ -59,7 +59,7 @@ def resolve_css_imports(output_str):
                     elif not re_external_imports.match(import_filepath):
                         import_str = read_file(import_filepath_abs)
                     output_str = output_str.replace(import_full, import_str)
-                    output_str = re.sub(re_comments, "/* !IMPORTAINT: removed a comment */", output_str)
+                    output_str = re.sub(re_comments, "", output_str)
                     print(f" [+] {import_filepath}")
                     indirect_imports = re_css_imports.findall(import_str)
                     for indirect_imp in indirect_imports:
@@ -132,10 +132,11 @@ def main():
 
     os.chdir(exe_dir())
     output_str = read_file(args.input_filepath)
+    #print(re_commented_imports.findall(output_str))
+
     output_str = resolve_css_imports(output_str)
     output_str = move_font_imports(output_str)
     output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
-
 
     if args.minify:
         output_str = minify_code(output_str)
