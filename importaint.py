@@ -7,6 +7,7 @@ import sys
 import os
 import re
 import argparse
+import requests
 
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
 __version__ = "0.9.1"
@@ -30,6 +31,11 @@ def read_file(filepath):
     with open(filepath, mode='rt', encoding='utf-8') as f:
         return f.read()
 
+def read_external_file(url):
+    """Return a string with external file contents."""
+    res = requests.get(url)
+    return res.text
+
 def resolve_css_imports(output_str):
     """Replace the @import rules with the target CSS code."""
     if len(re_css_imports.findall(output_str)) == 0:
@@ -45,7 +51,12 @@ def resolve_css_imports(output_str):
                     import_full = imp[0]
                     import_filepath = imp[2]
                     import_filepath_abs = os.path.abspath(import_filepath)            
-                    import_str = read_file(import_filepath_abs)
+                    
+                    if re.match(r"https://", import_filepath):
+                        import_str = read_external_file(import_filepath)
+                    elif not re.match(r"https://", import_filepath):
+                        import_str = read_file(import_filepath_abs)
+                    
                     output_str = output_str.replace(import_full, import_str)
                     print(f" [+] {import_filepath_abs}")
                     indirect_imports = re_css_imports.findall(import_str)
