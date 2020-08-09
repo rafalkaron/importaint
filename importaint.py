@@ -90,6 +90,15 @@ def remove_empty_newlines(output_str):
             continue
     return output_str
 
+def remove_redundant_spaces(output_str, redundant_spaces_number, target_spaces_number):
+    """Replaces a given number of redundant spaces with a given number of desired spaces."""
+    redundant_spaces = " " * redundant_spaces_number
+    target_spaces = " " * target_spaces_number
+    redundant_spaces = re.findall(redundant_spaces, output_str)
+    for redundant_space in redundant_spaces:
+        output_str = re.sub(redundant_space, target_spaces, output_str)
+    return output_str
+
 def main():
     par = argparse.ArgumentParser(description="Merge a CSS file with imports into a single file.")
     par.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
@@ -109,10 +118,8 @@ def main():
     elif not args.minify:
         output_str = output_str
         output_str = remove_empty_newlines(output_str)
-        
-        redundant_spaces = re.findall(r" {3,}", output_str)
-        for redundant_space in redundant_spaces:
-            output_str = re.sub(redundant_space, "  ", output_str)
+        output_str = remove_redundant_spaces(output_str, 3, 2)
+
 
         print(f"Saving CSS to: {output_filepath}")
     
