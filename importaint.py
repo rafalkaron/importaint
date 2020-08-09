@@ -8,6 +8,7 @@ import os
 import re
 import argparse
 import requests
+import pyperclip
 
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
 __version__ = "0.9.2"
@@ -52,12 +53,10 @@ def resolve_css_imports(output_str):
                     import_full = imp[0]
                     import_filepath = imp[2]
                     import_filepath_abs = os.path.abspath(import_filepath)            
-                    
                     if re_external_imports.match(import_filepath):
                         import_str = read_external_file(import_filepath)
                     elif not re_external_imports.match(import_filepath):
                         import_str = read_file(import_filepath_abs)
-                    
                     output_str = output_str.replace(import_full, import_str)
                     output_str = re.sub(re_comments, "", output_str)
                     print(f" [+] {import_filepath}")
@@ -123,10 +122,11 @@ def minify_code(output_str):
     return output_str
 
 def main():
-    par = argparse.ArgumentParser(description="Merge a CSS file with imports into a single file.")
+    par = argparse.ArgumentParser(description="Resolve imports in a CSS file")
     par.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
-    par.add_argument("-m", "--minify", action="store_true", help="Minify CSS.")
-    par.add_argument("input_filepath", type=str, help="A CSS file with imports.")
+    par.add_argument("-m", "--minify", action="store_true", help="minify the resolved CSS output")
+    par.add_argument("-c", "--copy", action="store_true",help="copy the resolved CSS output to clipboard")
+    par.add_argument("input_filepath", type=str, help="provide a filepath to a CSS file with unresolved imports")
     args = par.parse_args()
 
     os.chdir(exe_dir())
@@ -137,14 +137,17 @@ def main():
 
     if args.minify:
         output_str = minify_code(output_str)
-        print(f"Saved minified CSS to: {output_filepath}")
+        print(f"Saved the minified and resolved CSS to: {output_filepath}")
     elif not args.minify:
         output_str = output_str
         output_str = remove_empty_newlines(output_str)
         output_str = remove_redundant_spaces(output_str, 3, 2)
-        print(f"Saved CSS to: {output_filepath}")
+        print(f"Saved the resolved CSS to: {output_filepath}")
     
     save_str_as_file(output_str, output_filepath)
+    if args.copy:
+        pyperclip.copy(output_str)
+        print("Copied the CSS to clipboard.")
     
 __main__ = os.path.basename(os.path.abspath(sys.argv[0])).replace(".py","")
 if __name__ == "__main__":
