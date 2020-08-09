@@ -109,6 +109,10 @@ def main():
     elif not args.minify:
         output_str = output_str
         output_str = remove_empty_newlines(output_str)
+        
+        redundant_spaces = re.findall(r" {3,}", output_str)
+        for redundant_space in redundant_spaces:
+            output_str = re.sub(redundant_space, "  ", output_str)
 
         print(f"Saving CSS to: {output_filepath}")
     
