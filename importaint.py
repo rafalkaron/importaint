@@ -13,6 +13,7 @@ __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
 __version__ = "0.9.1"
 
 re_css_imports = re.compile(r"(@import url\((\"|\')(.*.css)(\"|\')\);)")
+re_external_imports = re.compile(r"(https://|http://)")
 re_font_imports = re.compile(r"(@import url\((\"|\').*(\"|\')\);)")
 re_font_imports_placeholder = re.compile(r"/\* imports placeholder \*/")
 re_comments = re.compile(r"/\*[^*]*.*?\*/", flags=re.DOTALL)
@@ -52,13 +53,13 @@ def resolve_css_imports(output_str):
                     import_filepath = imp[2]
                     import_filepath_abs = os.path.abspath(import_filepath)            
                     
-                    if re.match(r"https://", import_filepath):
+                    if re_external_imports.match(import_filepath):
                         import_str = read_external_file(import_filepath)
-                    elif not re.match(r"https://", import_filepath):
+                    elif not re_external_imports.match(import_filepath):
                         import_str = read_file(import_filepath_abs)
                     
                     output_str = output_str.replace(import_full, import_str)
-                    print(f" [+] {import_filepath_abs}")
+                    print(f" [+] {import_filepath}")
                     indirect_imports = re_css_imports.findall(import_str)
                     for indirect_imp in indirect_imports:
                         indirect_import_filepath = indirect_imp[2]
@@ -67,7 +68,7 @@ def resolve_css_imports(output_str):
                             output_str = re.sub(indirect_import_filepath, f"{os.path.dirname(import_filepath_abs)}/{indirect_import_filepath}", output_str)
                 except FileNotFoundError:
                     output_str = output_str.replace(import_full, "")
-                    print(f" [!] {import_filepath_abs} [file not found]")
+                    print(f" [!] {import_filepath} [file not found]")
             if len(imports) == 0:
                 break
             else:
