@@ -99,6 +99,13 @@ def remove_redundant_spaces(output_str, redundant_spaces_number, target_spaces_n
         output_str = re.sub(redundant_space, target_spaces, output_str)
     return output_str
 
+def minify_code(output_str):
+    """Renders multi-line code into single-line code. Removes spaces. Retains semantic spaces (at least some of them)."""
+    output_str = re.sub(r"\n", "", output_str)
+    output_str = re.sub(r" ", "", output_str)
+    output_str = re.sub("@importurl", "@import url", output_str)
+    return output_str
+
 def main():
     par = argparse.ArgumentParser(description="Merge a CSS file with imports into a single file.")
     par.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
@@ -113,15 +120,13 @@ def main():
     output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
 
     if args.minify:
-        print(f"Saving minified CSS to: {output_filepath}")
-        output_str = output_str.replace("\n", "").replace(" ", "").replace("@importurl", "@import url")
+        output_str = minify_code(output_str)
+        print(f"Saved minified CSS to: {output_filepath}")
     elif not args.minify:
         output_str = output_str
         output_str = remove_empty_newlines(output_str)
         output_str = remove_redundant_spaces(output_str, 3, 2)
-
-
-        print(f"Saving CSS to: {output_filepath}")
+        print(f"Saved CSS to: {output_filepath}")
     
     save_str_as_file(output_str, output_filepath)
     
