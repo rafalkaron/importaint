@@ -32,34 +32,39 @@ def read_file(filepath):
 
 def resolve_css_imports(output_str):
     """Replace the @import rules with the target CSS code."""
-    print("Resolving the following imports:")
-    while True:
-        imports = re_css_imports.findall(output_str)
-        output_str = re.sub(re_comments, "", output_str)
-        for imp in imports:
-            try:
-                import_full = imp[0]
-                import_filepath = imp[2]
-                import_filepath_abs = os.path.abspath(import_filepath)            
-                import_str = read_file(import_filepath_abs)
-                output_str = output_str.replace(import_full, import_str)
-                print(f" [+] {import_filepath_abs}")
-                indirect_imports = re_css_imports.findall(import_str)
-                for indirect_imp in indirect_imports:
-                    indirect_import_filepath = indirect_imp[2]
-                    indirect_import_filepath_abs = os.path.abspath(indirect_import_filepath)
-                    if not os.path.isfile(indirect_import_filepath_abs):
-                        output_str = re.sub(indirect_import_filepath, f"{os.path.dirname(import_filepath_abs)}/{indirect_import_filepath}", output_str)
-            except FileNotFoundError:
-                output_str = output_str.replace(import_full, "")
-                print(f" [!] {import_filepath_abs} [file not found]")
-        if len(imports) == 0:
-            break
-        else:
-            continue
+    if len(re_css_imports.findall(output_str)) == 0:
+        print("No imports to resolve.")
+        sys.exit(0)
+    else:
+        print("Resolving the following imports:")
+        while True:
+            imports = re_css_imports.findall(output_str)
+            output_str = re.sub(re_comments, "", output_str)
+            for imp in imports:
+                try:
+                    import_full = imp[0]
+                    import_filepath = imp[2]
+                    import_filepath_abs = os.path.abspath(import_filepath)            
+                    import_str = read_file(import_filepath_abs)
+                    output_str = output_str.replace(import_full, import_str)
+                    print(f" [+] {import_filepath_abs}")
+                    indirect_imports = re_css_imports.findall(import_str)
+                    for indirect_imp in indirect_imports:
+                        indirect_import_filepath = indirect_imp[2]
+                        indirect_import_filepath_abs = os.path.abspath(indirect_import_filepath)
+                        if not os.path.isfile(indirect_import_filepath_abs):
+                            output_str = re.sub(indirect_import_filepath, f"{os.path.dirname(import_filepath_abs)}/{indirect_import_filepath}", output_str)
+                except FileNotFoundError:
+                    output_str = output_str.replace(import_full, "")
+                    print(f" [!] {import_filepath_abs} [file not found]")
+            if len(imports) == 0:
+                break
+            else:
+                continue
     return output_str
 
 def move_font_imports(string):
+    """Move the @import rules with fonts to the beginning of the code."""
     output_str = r"/* imports placeholder */" + string
     font_imports = re_font_imports.findall(output_str)
     font_imports = [i[0] for i in font_imports]
@@ -67,6 +72,11 @@ def move_font_imports(string):
     output_str = re.sub(re_font_imports, "", output_str)
     output_str = re.sub(re_font_imports_placeholder, font_imports, output_str)
     return output_str
+
+def remove_str_duplicates(string):
+    """Remove duplicated strings."""
+    pass
+    #return output_str
 
 def save_str_as_file(string, filepath):
     """Save a string to a file and return the file path."""
@@ -84,9 +94,8 @@ def main():
     os.chdir(exe_dir())
     output_str = read_file(args.input_filepath)
     output_str = resolve_css_imports(output_str)
-
     output_str = move_font_imports(output_str)
-
+    #output_str = remove_str_duplicates(output_str)
     output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
 
     if args.minify:
