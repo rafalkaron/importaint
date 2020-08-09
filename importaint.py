@@ -80,6 +80,16 @@ def save_str_as_file(string, filepath):
         file.write(string)
     return filepath
 
+def remove_empty_newlines(output_str):
+    """Remove empty newlines from a string."""
+    while True:
+        output_str = output_str.replace("\n\n", "\n")
+        if len(re.findall("\n\n", output_str)) == 0:
+            break
+        else:
+            continue
+    return output_str
+
 def main():
     par = argparse.ArgumentParser(description="Merge a CSS file with imports into a single file.")
     par.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
@@ -95,9 +105,11 @@ def main():
 
     if args.minify:
         print(f"Saving minified CSS to: {output_filepath}")
-        output_str = output_str.strip().replace("\n", "").replace(" ", "").replace("@importurl", "@import url") # This messes up font improts/added ugly workaround
+        output_str = output_str.replace("\n", "").replace(" ", "").replace("@importurl", "@import url")
     elif not args.minify:
-        output_str = output_str.strip().replace("\n\n", "\n")
+        output_str = output_str
+        output_str = remove_empty_newlines(output_str)
+
         print(f"Saving CSS to: {output_filepath}")
     
     save_str_as_file(output_str, output_filepath)
