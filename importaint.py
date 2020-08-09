@@ -65,7 +65,10 @@ def resolve_css_imports(output_str):
                         indirect_import_filepath = indirect_imp[2]
                         indirect_import_filepath_abs = os.path.abspath(indirect_import_filepath)
                         if not os.path.isfile(indirect_import_filepath_abs):
-                            output_str = re.sub(indirect_import_filepath, f"{os.path.dirname(import_filepath_abs)}/{indirect_import_filepath}", output_str)
+                            if re_external_imports.match(indirect_import_filepath):
+                                import_str = read_external_file(indirect_import_filepath)
+                            elif not re_external_imports.match(import_filepath):
+                                output_str = re.sub(indirect_import_filepath, f"{os.path.dirname(import_filepath_abs)}/{indirect_import_filepath}", output_str)
                 except FileNotFoundError:
                     output_str = output_str.replace(import_full, "")
                     print(f" [!] {import_filepath} [file not found]")
