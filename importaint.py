@@ -18,7 +18,7 @@ re_external_imports = re.compile(r"(https://|http://)")
 re_font_imports = re.compile(r"(@import url\((\"|\').*(\"|\')\);)")
 re_font_imports_placeholder = re.compile(r"/\* imports placeholder \*/")
 re_comments = re.compile(r"/\*[^*]*.*?\*/", flags=re.DOTALL)
-re_commented_imports = re.compile(r"/{1}(\*|\n){1,}(.*(@import.*;).*)(\*|\n){1,}/{1}")
+re_commented_imports = re.compile(r"/{1}(\*|\n){1,}(.*(@import.*;))(\*|\n){1,}/{1}")
 
 def exe_dir():
     """Return the executable directory."""
@@ -135,6 +135,7 @@ def main():
     output_str = resolve_css_imports(output_str)
     output_str = move_font_imports(output_str)
     output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
+
 
     if args.minify:
         output_str = minify_code(output_str)
