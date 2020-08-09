@@ -1,20 +1,20 @@
 # coding utf-8
 """
-Merge a CSS file with imports into a single file.
+Resolve imports in a CSS file.
 """
 
 import sys
 import os
-import glob
 import re
 import argparse
 
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
 __version__ = "0.9"
 
-re_imports = re.compile(r"(@import url\((\"|\')(.*.css)(\"|\')\);)") # returns a tuple with full import str and the filepath #add or operand for ' ' imports
-re_comments = re.compile(r"/\*[^*]*.*?\*/", flags=re.DOTALL)
+re_css_imports = re.compile(r"(@import url\((\"|\')(.*.css)(\"|\')\);)")
 re_font_imports = re.compile(r"(@import url\((\"|\').*(\"|\')\);)")
+re_font_imports_placeholder = re.compile(r"/\* imports placeholder \*/")
+re_comments = re.compile(r"/\*[^*]*.*?\*/", flags=re.DOTALL)
 
 def exe_dir():
     """Return the executable directory."""
@@ -30,10 +30,11 @@ def read_file(filepath):
     with open(filepath, mode='rt', encoding='utf-8') as f:
         return f.read()
 
-def resolve_imports(output_str):
+def resolve_css_imports(output_str):
+    """Replace the @import rules with the target CSS code."""
     print("Resolving the following imports:")
     while True:
-        imports = re_imports.findall(output_str)
+        imports = re_css_imports.findall(output_str)
         output_str = re.sub(re_comments, "", output_str)
         for imp in imports:
             try:
@@ -43,29 +44,34 @@ def resolve_imports(output_str):
                 import_str = read_file(import_filepath_abs)
                 output_str = output_str.replace(import_full, import_str)
                 print(f" [+] {import_filepath_abs}")
-                indirect_imports = re_imports.findall(import_str)
+                indirect_imports = re_css_imports.findall(import_str)
                 for indirect_imp in indirect_imports:
                     indirect_import_filepath = indirect_imp[2]
                     indirect_import_filepath_abs = os.path.abspath(indirect_import_filepath)
                     if not os.path.isfile(indirect_import_filepath_abs):
                         output_str = re.sub(indirect_import_filepath, f"{os.path.dirname(import_filepath_abs)}/{indirect_import_filepath}", output_str)
-                        output_str = re.sub(re_comments, "", output_str)
             except FileNotFoundError:
                 output_str = output_str.replace(import_full, "")
                 print(f" [!] {import_filepath_abs} [file not found]")
-            output_str = re.sub(re_comments, "", output_str)
         if len(imports) == 0:
             break
         else:
             continue
- 
-    output_str = re.sub(re_comments, "", output_str)
     return output_str
 
-def save_str_as_file(str, filepath):
+def move_font_imports(string):
+    output_str = r"/* imports placeholder */" + string
+    font_imports = re_font_imports.findall(output_str)
+    font_imports = [i[0] for i in font_imports]
+    font_imports = "\n".join(font_imports)
+    output_str = re.sub(re_font_imports, "", output_str)
+    output_str = re.sub(re_font_imports_placeholder, font_imports, output_str)
+    return output_str
+
+def save_str_as_file(string, filepath):
     """Save a string to a file and return the file path."""
     with open(filepath, "w", encoding="utf-8") as file:
-        file.write(str)
+        file.write(string)
     return filepath
 
 def main():
@@ -77,18 +83,11 @@ def main():
 
     os.chdir(exe_dir())
     output_str = read_file(args.input_filepath)
+    output_str = resolve_css_imports(output_str)
+
+    output_str = move_font_imports(output_str)
+
     output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
-
-    imports_placeholder = "/* imports placeholder */"
-    re_imports_placeholder = re.compile(r"/\* imports placeholder \*/")
-    output_str = imports_placeholder + resolve_imports(output_str)
-
-    font_imports = re_font_imports.findall(output_str)
-    font_imports = [i[0] for i in font_imports]
-    font_imports = "\n".join(font_imports)
-
-    output_str = re.sub(re_font_imports, "", output_str)
-    output_str = re.sub(re_imports_placeholder, font_imports, output_str)
 
     if args.minify:
         print(f"Saving minified CSS to: {output_filepath}")
