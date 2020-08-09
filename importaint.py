@@ -64,19 +64,15 @@ def resolve_css_imports(output_str):
     return output_str
 
 def move_font_imports(string):
-    """Move the @import rules with fonts to the beginning of the code."""
+    """Move the @import rules with fonts to the beginning of the code. Remove duplicated strings."""
     output_str = r"/* imports placeholder */" + string
     font_imports = re_font_imports.findall(output_str)
     font_imports = [i[0] for i in font_imports]
-    font_imports = "\n".join(font_imports)
+    font_imports_no_duplicates = list(dict.fromkeys(font_imports))
+    font_imports_str = "\n".join(font_imports_no_duplicates)
     output_str = re.sub(re_font_imports, "", output_str)
-    output_str = re.sub(re_font_imports_placeholder, font_imports, output_str)
+    output_str = re.sub(re_font_imports_placeholder, font_imports_str, output_str)
     return output_str
-
-def remove_str_duplicates(string):
-    """Remove duplicated strings."""
-    pass
-    #return output_str
 
 def save_str_as_file(string, filepath):
     """Save a string to a file and return the file path."""
@@ -95,7 +91,6 @@ def main():
     output_str = read_file(args.input_filepath)
     output_str = resolve_css_imports(output_str)
     output_str = move_font_imports(output_str)
-    #output_str = remove_str_duplicates(output_str)
     output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
 
     if args.minify:
