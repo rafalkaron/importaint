@@ -59,6 +59,7 @@ def resolve_css_imports(output_str):
                         import_str = read_file(import_filepath_abs)
                     
                     output_str = output_str.replace(import_full, import_str)
+                    output_str = re.sub(re_comments, "", output_str)
                     print(f" [+] {import_filepath}")
                     indirect_imports = re_css_imports.findall(import_str)
                     for indirect_imp in indirect_imports:
