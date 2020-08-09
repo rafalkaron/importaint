@@ -10,7 +10,7 @@ import argparse
 import requests
 
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
-__version__ = "0.9.1"
+__version__ = "0.9.2"
 
 re_css_imports = re.compile(r"(@import url\((\"|\')(.*.css)(\"|\')\);)")
 re_external_imports = re.compile(r"(https://|http://)")
