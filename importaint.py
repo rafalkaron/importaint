@@ -9,7 +9,7 @@ import re
 import argparse
 
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
-__version__ = "0.9"
+__version__ = "0.9.1"
 
 re_css_imports = re.compile(r"(@import url\((\"|\')(.*.css)(\"|\')\);)")
 re_font_imports = re.compile(r"(@import url\((\"|\').*(\"|\')\);)")
