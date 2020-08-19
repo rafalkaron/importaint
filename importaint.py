@@ -15,7 +15,7 @@ __version__ = "0.9.2"
 
 re_css_imports = re.compile(r"(@import url\((\"|\')(.*.css)(\"|\')\);)")
 re_external_imports = re.compile(r"(https://|http://)")
-re_font_imports = re.compile(r"(@import url\((\"|\').*(\"|\')\);)")
+re_all_imports = re.compile(r"(@import url\((\"|\').*(\"|\')\);)")
 re_font_imports_placeholder = re.compile(r"/\* imports placeholder \*/")
 re_comments = re.compile(r"/\*[^*]*.*?\*/", flags=re.DOTALL)
 
@@ -41,11 +41,11 @@ def read_external_file(url):
 def remove_commented_out_imports(output_str):
     comments = re_comments.findall(output_str)
     for comment in comments:
-
-        commented_out_imports = re_font_imports.findall(comment)
+        commented_out_imports = re_all_imports.findall(comment)
         for commented_out_import in commented_out_imports:
             print(" [-] " + commented_out_import[0] + " [removed a commented-out import]")
-            output_str = output_str.replace(commented_out_import[0], "!importaint: removed a commented-out import", 1)    
+            comment_new = comment.replace(commented_out_import[0], "!importaint: removed a commented-out import")
+            output_str = output_str.replace(comment, comment_new)
     return output_str
 
 def resolve_css_imports(output_str):
@@ -90,11 +90,11 @@ def resolve_css_imports(output_str):
 def move_font_imports(string):
     """Move the @import rules with fonts to the beginning of the code. Remove duplicated strings."""
     output_str = r"/* imports placeholder */" + string
-    font_imports = re_font_imports.findall(output_str)
+    font_imports = re_all_imports.findall(output_str)
     font_imports = [i[0] for i in font_imports]
     font_imports_no_duplicates = list(dict.fromkeys(font_imports))
     font_imports_str = "\n".join(font_imports_no_duplicates)
-    output_str = re.sub(re_font_imports, "", output_str)
+    output_str = re.sub(re_all_imports, "", output_str)
     output_str = re.sub(re_font_imports_placeholder, font_imports_str, output_str)
     return output_str
 
