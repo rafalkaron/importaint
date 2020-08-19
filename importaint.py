@@ -34,7 +34,7 @@ def read_file(filepath):
         return f.read()
 
 def read_external_file(url):
-    """Return a string with external file contents. """
+    """Return a string with external file contents."""
     res = requests.get(url)
     return res.text
 
