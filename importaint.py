@@ -39,6 +39,16 @@ def read_external_file(url):
     res = requests.get(url)
     return res.text
 
+def remove_commented_out_imports(output_str):
+    comments = re_comments.findall(output_str)
+    for comment in comments:
+        commented_out_imports = re_css_imports.findall(comment)
+        for commented_out_import in commented_out_imports:
+            print(" [-] " + commented_out_import[0] + " [Removed commented-out import]")
+            output_str = output_str.replace(commented_out_import[0], "")
+    commented_out_imports = output_str
+    return output_str
+
 def resolve_css_imports(output_str):
     """Replace the @import rules with the target CSS code."""
     if len(re_css_imports.findall(output_str)) == 0:
@@ -47,8 +57,9 @@ def resolve_css_imports(output_str):
     else:
         print("Resolving the following imports:")
         while True:
+            output_str = remove_commented_out_imports(output_str)
+            #output_str = re.sub(re_comments, "", output_str)
             imports = re_css_imports.findall(output_str)
-            output_str = re.sub(re_comments, "", output_str)
             for imp in imports:
                 try:
                     import_full = imp[0]
@@ -59,7 +70,8 @@ def resolve_css_imports(output_str):
                     elif not re_external_imports.match(import_filepath):
                         import_str = read_file(import_filepath_abs)
                     output_str = output_str.replace(import_full, import_str)
-                    output_str = re.sub(re_comments, "", output_str)
+                    output_str = remove_commented_out_imports(output_str)
+                    #output_str = re.sub(re_comments, "", output_str)
                     print(f" [+] {import_filepath}")
                     indirect_imports = re_css_imports.findall(import_str)
                     for indirect_imp in indirect_imports:
@@ -132,8 +144,6 @@ def main():
 
     os.chdir(exe_dir())
     output_str = read_file(args.input_filepath)
-    #print(re_commented_imports.findall(output_str))
-
     output_str = resolve_css_imports(output_str)
     output_str = move_font_imports(output_str)
     output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
