@@ -50,12 +50,12 @@ def remove_commented_out_imports(output_str):
         commented_out_external_imports = re_external_imports.findall(comment)
         for commented_out_external_import in commented_out_external_imports:
             print(" [-] " + commented_out_external_import[0] + " [Removed commented-out import]")
-            output_str = output_str.replace(commented_out_external_import[0], "")
+            output_str = output_str.replace(commented_out_external_import[0], "", 1)
 
         commented_out_font_imports = re_font_imports.findall(comment)
         for commented_out_font_import in commented_out_font_imports:
             print(" [-] " + commented_out_font_import[0] + " [Removed commented-out import]")
-            output_str = output_str.replace(commented_out_font_import[0], "")
+            output_str = output_str.replace(commented_out_font_import[0], "", 1)
 
     return output_str
 
@@ -67,8 +67,7 @@ def resolve_css_imports(output_str):
     else:
         print("Resolving the following imports:")
         while True:
-            output_str = remove_commented_out_imports(output_str)
-            #output_str = re.sub(re_comments, "", output_str)
+            output_str = remove_commented_out_imports(output_str) #output_str = re.sub(re_comments, "", output_str)
             imports = re_css_imports.findall(output_str)
             for imp in imports:
                 try:
@@ -80,8 +79,7 @@ def resolve_css_imports(output_str):
                     elif not re_external_imports.match(import_filepath):
                         import_str = read_file(import_filepath_abs)
                     output_str = output_str.replace(import_full, import_str)
-                    output_str = remove_commented_out_imports(output_str)
-                    #output_str = re.sub(re_comments, "", output_str)
+                    output_str = remove_commented_out_imports(output_str) #output_str = re.sub(re_comments, "", output_str)
                     print(f" [+] {import_filepath}")
                     indirect_imports = re_css_imports.findall(import_str)
                     for indirect_imp in indirect_imports:
