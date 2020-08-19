@@ -18,6 +18,7 @@ re_external_imports = re.compile(r"(https://|http://)")
 re_all_imports = re.compile(r"(@import url\((\"|\').*(\"|\')\);)")
 re_font_imports_placeholder = re.compile(r"/\* imports placeholder \*/")
 re_comments = re.compile(r"/\*[^*]*.*?\*/", flags=re.DOTALL)
+re_commented_out_imports = re.compile(r"^((/\*)(\*|\n|.)*?(@import url\(.*.css.*\);)(\*|\n|.)*?(\*/))$", flags=re.MULTILINE)
 
 def exe_dir():
     """Return the executable directory."""
@@ -41,11 +42,21 @@ def read_external_file(url):
 def remove_commented_out_imports(output_str):
     comments = re_comments.findall(output_str)
     for comment in comments:
+        commented_out_imports = re_commented_out_imports.findall(comment)
+        for commented_out_import in commented_out_imports:
+            print(" [-] " + commented_out_import[3] + " [removed a commented-out import]")
+            comment_new = comment.replace(commented_out_import[3], "!importaint: removed a commented-out import")
+            output_str = output_str.replace(comment, comment_new)
+
+    """
+    comments = re_comments.findall(output_str)
+    for comment in comments:
         commented_out_imports = re_all_imports.findall(comment)
         for commented_out_import in commented_out_imports:
             print(" [-] " + commented_out_import[0] + " [removed a commented-out import]")
             comment_new = comment.replace(commented_out_import[0], "!importaint: removed a commented-out import")
             output_str = output_str.replace(comment, comment_new)
+    """
     return output_str
 
 def resolve_css_imports(output_str):
