@@ -148,6 +148,7 @@ def main():
     par = argparse.ArgumentParser(description="Resolve imports in a CSS file")
     par.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
     par.add_argument("-m", "--minify", action="store_true", help="minify the resolved CSS output")
+    par.add_argument("-rc", "--remove_comments", action="store_true", help="remove comments from the resolved CSS output")
     par.add_argument("-c", "--copy", action="store_true",help="copy the resolved CSS output to clipboard")
     par.add_argument("input_filepath", type=str, help="provide a filepath to a CSS file with unresolved imports")
     args = par.parse_args()
@@ -165,7 +166,11 @@ def main():
         output_str = output_str
         output_str = remove_empty_newlines(output_str)
         output_str = remove_redundant_spaces(output_str, 3, 2)
-        print(f"Saved the resolved CSS to: {output_filepath}")
+        if args.remove_comments:
+            output_str = re.sub(re_comments, "", output_str)
+            print(f"Saved the resolved CSS without comments to: {output_filepath}")
+        elif not args.remove_comments:
+            print(f"Saved the resolved CSS to: {output_filepath}")
     
     save_str_as_file(output_str, output_filepath)
     if args.copy:
