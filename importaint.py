@@ -46,15 +46,15 @@ def remove_commented_out_imports(output_str):
         for commented_out_css_import in commented_out_css_imports:
             print(" [-] " + commented_out_css_import[0] + " [Removed commented-out import]")
             output_str = output_str.replace(commented_out_css_import[0], "")
-        """
+        
         commented_out_external_imports = re_external_imports.findall(comment)
         for commented_out_external_import in commented_out_external_imports:
-            print(" [-] " + commented_out_external_import[0] + " [Removed commented-out import]")
+            print(" [-] " + commented_out_external_import[0] + " [removed commented-out import]")
             output_str = output_str.replace(commented_out_external_import[0], "", 1)
-
+        """
         commented_out_font_imports = re_font_imports.findall(comment)
         for commented_out_font_import in commented_out_font_imports:
-            print(" [-] " + commented_out_font_import[0] + " [Removed commented-out import]")
+            print(" [-] " + commented_out_font_import[0] + " [removed commented-out import]")
             output_str = output_str.replace(commented_out_font_import[0], "", 1)
 
     return output_str
