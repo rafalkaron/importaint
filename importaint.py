@@ -139,7 +139,7 @@ def main():
     par.add_argument("input_filepath", type=str, help="provide a filepath to a CSS file with unresolved imports")
     args = par.parse_args()
 
-    os.chdir(exe_dir())
+    os.chdir(os.path.dirname(args.input_filepath))
     output_str = read_file(args.input_filepath)
     output_str = resolve_css_imports(output_str)
     output_str = move_font_imports(output_str)
