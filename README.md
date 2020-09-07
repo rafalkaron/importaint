@@ -12,6 +12,7 @@ Merge a CSS file with imports into a single file.
 You can pass the following arguments to control the **importaint** behavior.
 * `--minify` - minify the resolved CSS output (experimental!)
 * `--remove_comments` - remove comments from the resolved CSS output
+* `--copy` - copy the resolved CSS output to system clipboard
 
 ## Example
 ```shell

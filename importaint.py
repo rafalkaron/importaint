@@ -11,7 +11,7 @@ import requests
 import pyperclip
 
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
-__version__ = "0.9.2"
+__version__ = "0.9.3"
 
 re_css_imports = re.compile(r"(@import url\((\"|\')(.*.css)(\"|\')\);)")
 re_external_imports = re.compile(r"(https://|http://)")
@@ -147,6 +147,7 @@ def main():
 
     if args.minify:
         output_str = minify_code(output_str)
+        output_str = re.sub(re_comments, "", output_str)
         print(f"Saved the minified and resolved CSS to: {output_filepath}")
     elif not args.minify:
         output_str = output_str
