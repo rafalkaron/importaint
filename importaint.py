@@ -9,6 +9,7 @@ import re
 import argparse
 import requests
 import pyperclip
+import css_html_js_minify
 
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
 __version__ = "0.9.3"
@@ -125,9 +126,7 @@ def remove_redundant_spaces(output_str, redundant_spaces_number, target_spaces_n
 
 def minify_code(output_str):
     """Renders multi-line code into single-line code. Removes spaces. Retains semantic spaces (at least some of them)."""
-    output_str = re.sub(r"\n", "", output_str)
-    output_str = re.sub(r" ", "", output_str)
-    output_str = re.sub("@importurl", "@import url", output_str)
+    output_str = css_html_js_minify.css_minify(output_str)
     return output_str
 
 def main():
@@ -140,29 +139,30 @@ def main():
     args = par.parse_args()
 
     os.chdir(os.path.dirname(args.input_filepath))
+    output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
     output_str = read_file(args.input_filepath)
     output_str = resolve_css_imports(output_str)
     output_str = move_font_imports(output_str)
-    output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
 
     if args.minify:
         output_str = minify_code(output_str)
         output_str = re.sub(re_comments, "", output_str)
-        print(f"Saved the minified and resolved CSS to: {output_filepath}")
-    elif not args.minify:
-        output_str = output_str
         output_str = remove_empty_newlines(output_str)
         output_str = remove_redundant_spaces(output_str, 3, 2)
-        if args.remove_comments:
-            output_str = re.sub(re_comments, "", output_str)
-            print(f"Saved the resolved CSS without comments to: {output_filepath}")
-        elif not args.remove_comments:
-            print(f"Saved the resolved CSS to: {output_filepath}")
+        print(f" [i] Minified the resolved CSS")
+    if args.remove_comments:
+        output_str = re.sub(re_comments, "", output_str)
+        print(f" [i] Removed comments from the resolved CSS")
+
+    output_str = remove_empty_newlines(output_str)
+    output_str = remove_redundant_spaces(output_str, 3, 2)
     
-    save_str_as_file(output_str, output_filepath)
     if args.copy:
         pyperclip.copy(output_str)
-        print("Copied the CSS to clipboard.")
+        print(" [i] Copied the resolved CSS to clipboard.")
+    
+    save_str_as_file(output_str, output_filepath)
+    print(f" [✔] Saved the resolved CSS to: {output_filepath}")
     
 __main__ = os.path.basename(os.path.abspath(sys.argv[0])).replace(".py","")
 if __name__ == "__main__":
