@@ -12,7 +12,7 @@ import pyperclip
 import css_html_js_minify
 
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
-__version__ = "0.9.3"
+__version__ = "0.9.4"
 
 re_css_imports = re.compile(r"(@import url\((\"|\')(.*.css)(\"|\')\);)")
 re_external_imports = re.compile(r"(https://|http://)")
@@ -138,18 +138,25 @@ def main():
     par.add_argument("input_filepath", type=str, help="provide a filepath to a CSS file with unresolved imports")
     args = par.parse_args()
 
-    os.chdir(os.path.dirname(args.input_filepath))
-    output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
-    output_str = read_file(args.input_filepath)
+    if re.match(r"https://|http://", args.input_filepath):
+        new_file = f"{os.path.normpath(os.path.expanduser('~/Desktop'))}/file.css"
+        print(f" [i] Copied the oroginal remote CSS file to: {new_file}")
+        save_str_as_file(read_external_file(args.input_filepath), new_file)
+        output_str = read_external_file(args.input_filepath)
+        output_filepath = os.path.abspath(new_file.replace(".css", "_compiled.css"))
+        os.chdir(os.path.dirname(new_file))
+    else:
+        output_str = read_file(args.input_filepath)
+        output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
+        os.chdir(os.path.dirname(args.input_filepath))
+
     output_str = resolve_css_imports(output_str)
     output_str = move_font_imports(output_str)
 
     if args.minify:
         output_str = minify_code(output_str)
-        output_str = re.sub(re_comments, "", output_str)
-        output_str = remove_empty_newlines(output_str)
-        output_str = remove_redundant_spaces(output_str, 3, 2)
         print(f" [i] Minified the resolved CSS")
+
     if args.remove_comments:
         output_str = re.sub(re_comments, "", output_str)
         print(f" [i] Removed comments from the resolved CSS")
