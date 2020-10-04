@@ -12,10 +12,10 @@ import pyperclip
 import css_html_js_minify
 
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
-__version__ = "0.9.4"
+__version__ = "0.9.5"
 
 re_css_imports = re.compile(r"(@import url\((\"|\')(.*.css)(\"|\')\);)")
-re_external_imports = re.compile(r"(https://|http://)")
+re_external_imports = re.compile(r"(https://|http://|ftp://)")
 re_all_imports = re.compile(r"(@import url\((\"|\').*(\"|\')\);)")
 re_font_imports_placeholder = re.compile(r"/\* imports placeholder \*/")
 re_comments = re.compile(r"/\*[^*]*.*?\*/", flags=re.DOTALL)
@@ -138,9 +138,18 @@ def main():
     par.add_argument("input_filepath", type=str, help="provide a filepath to a CSS file with unresolved imports")
     args = par.parse_args()
 
-    if re.match(r"https://|http://", args.input_filepath):
-        new_file = f"{os.path.normpath(os.path.expanduser('~/Desktop'))}/file.css"
-        print(f" [i] Copied the oroginal remote CSS file to: {new_file}")
+    if re_external_imports.match(args.input_filepath):
+        remote_file = os.path.basename(args.input_filepath)
+        new_file_folder = input("""Clone the external unresolved CSS by doing any of the following:
+   * Enter the local directory in which you want to save the file
+   * Save the file on desktop by pressing [Enter] 
+> """)
+        new_file = f"{new_file_folder}/{remote_file}"
+        if not os.path.isdir(new_file_folder):
+            new_file = f"{os.path.normpath(os.path.expanduser('~/Desktop'))}/{remote_file}"
+            print(f" [i] No path or invalid path. Copying the external unresolved CSS file to: {new_file}")
+        else:
+            print(f" [i] Copied the oroginal remote CSS file to: {new_file}")
         save_str_as_file(read_external_file(args.input_filepath), new_file)
         output_str = read_external_file(args.input_filepath)
         output_filepath = os.path.abspath(new_file.replace(".css", "_compiled.css"))
