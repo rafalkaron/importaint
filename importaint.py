@@ -20,15 +20,6 @@ re_all_imports = re.compile(r"(@import url\((\"|\').*(\"|\')\);)")
 re_font_imports_placeholder = re.compile(r"/\* imports placeholder \*/")
 re_comments = re.compile(r"/\*[^*]*.*?\*/", flags=re.DOTALL)
 
-def exe_dir():
-    """Return the executable directory."""
-    if getattr(sys, 'frozen', False):
-        exe_path = os.path.dirname(sys.executable)
-        exe_path = os.path.dirname(os.path.dirname(os.path.dirname(exe_path))) # Uncomment for macOS app builds
-    elif __file__:
-        exe_path = os.path.dirname(__file__)
-    return exe_path
-
 def read_file(filepath):
     """Return a string with file contents."""
     with open(filepath, mode='rt', encoding='utf-8') as f:
