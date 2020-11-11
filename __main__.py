@@ -3,9 +3,10 @@
 Compile a CSS file with imports into a resolved CSS file without imports.
 """
 
+import argparse
 import os
 import re
-import argparse
+import pyperclip
 from importaint import (read_file,
                         read_external_file,
                         save_str_as_file,
@@ -30,9 +31,8 @@ def main():
 
     re_external_imports = re.compile(r"(https://|http://|ftp://)")
     re_comments = re.compile(r"/\*[^*]*.*?\*/", flags=re.DOTALL)
-
+    
     output_dir = args.output
-
     if re_external_imports.match(args.input_path):
         remote_file = os.path.basename(args.input_path)
         if not args.output:
@@ -46,7 +46,6 @@ def main():
             print(f" [i] No path or invalid path. Copying the external unresolved CSS file to: {new_file}")
         else:
             print(f" [i] Copying the original remote CSS file to: {new_file}")
-        
         if os.path.isfile(new_file):
             prompt = input(f" [?] Do you want to overwrite {new_file}? [y/n]: ")
             if prompt == "y" or prompt == "Y":
@@ -54,7 +53,6 @@ def main():
             elif prompt != "y" or prompt != "Y":
                 print(f" [i] Cancelled.")
                 return False
-            
         save_str_as_file(read_external_file(args.input_path), new_file)
         output_str = read_external_file(args.input_path)
         output_filepath = os.path.abspath(new_file.replace(".css", "_compiled.css"))
@@ -62,7 +60,7 @@ def main():
     else:
         output_str = read_file(args.input_path)
         if args.output:
-            output_filepath = args.output + os.path.basename(args.input_path.replace(".css", "_compiled.css"))
+            output_filepath = args.output + "/" + os.path.basename(args.input_path.replace(".css", "_compiled.css"))
         if not args.output:
             output_filepath = os.path.abspath(args.input_path.replace(".css", "_compiled.css"))
         os.chdir(os.path.dirname(args.input_path))
@@ -92,7 +90,6 @@ def main():
         elif prompt != "y" or prompt != "Y":
             print(f" [i] Cancelled.")
             return False
-
     save_str_as_file(output_str, output_filepath)
     print(f" [✔] Saved the resolved CSS to: {output_filepath}")
     

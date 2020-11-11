@@ -5,7 +5,8 @@ import re
 import css_html_js_minify
 import sys
 import os
-from .files import read_external_file
+from .files import (read_external_file,
+                    read_file)
 
 re_css_imports = re.compile(r"(@import url\((\"|\')(.*.css)(\"|\')\);)")
 re_external_imports = re.compile(r"(https://|http://|ftp://)")
@@ -14,6 +15,7 @@ re_font_imports_placeholder = re.compile(r"/\* imports placeholder \*/")
 re_comments = re.compile(r"/\*[^*]*.*?\*/", flags=re.DOTALL)
 
 def remove_commented_out_imports(output_str):
+    """Remove /* commented-out */ imports from a CSS string."""
     comments = re_comments.findall(output_str)
     for comment in comments:
         commented_out_imports = re_all_imports.findall(comment)
@@ -26,10 +28,10 @@ def remove_commented_out_imports(output_str):
 def resolve_css_imports(output_str):
     """Replace the @import rules with the target CSS code."""
     if len(re_css_imports.findall(output_str)) == 0:
-        print("No imports to resolve.")
+        print(" [!] No imports to resolve.")
         sys.exit(0)
     else:
-        print("Resolving the following imports:")
+        print(" [i] Resolving the following imports:")
         while True:
             output_str = remove_commented_out_imports(output_str) #output_str = re.sub(re_comments, "", output_str)
             imports = re_css_imports.findall(output_str)
