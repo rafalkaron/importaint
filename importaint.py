@@ -175,6 +175,14 @@ def main():
         pyperclip.copy(output_str)
         print(" [i] Copied the resolved CSS to clipboard.")
     
+    if os.path.isfile(output_filepath):
+        prompt = input(f" [?] Do you want to overwrite {output_filepath}? [y/n]: ")
+        if prompt == "y" or prompt == "Y":
+            pass
+        elif prompt != "y" or prompt != "Y":
+            print(f" [i] Cancelled.")
+            return False
+
     save_str_as_file(output_str, output_filepath)
     print(f" [✔] Saved the resolved CSS to: {output_filepath}")
     
