@@ -145,6 +145,15 @@ def main():
             print(f" [i] No path or invalid path. Copying the external unresolved CSS file to: {new_file}")
         else:
             print(f" [i] Copied the original remote CSS file to: {new_file}")
+        
+        if os.path.isfile(new_file):
+            prompt = input(f" [?] Do you want to overwrite {new_file}? [y/n]: ")
+            if prompt == "y" or prompt == "Y":
+                pass
+            elif prompt != "y" or prompt != "Y":
+                print(f" [i] Cancelled.")
+                return False
+            
         save_str_as_file(read_external_file(args.input_path), new_file)
         output_str = read_external_file(args.input_path)
         output_filepath = os.path.abspath(new_file.replace(".css", "_compiled.css"))
