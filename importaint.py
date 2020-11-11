@@ -130,6 +130,8 @@ def main():
     par.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
     args = par.parse_args()
 
+    output_dir = args.output
+
     if re_external_imports.match(args.input_path):
         remote_file = os.path.basename(args.input_path)
         if not args.output:
