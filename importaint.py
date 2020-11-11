@@ -144,7 +144,7 @@ def main():
             new_file = f"{os.path.normpath(os.path.expanduser('~/Desktop'))}/{remote_file}"
             print(f" [i] No path or invalid path. Copying the external unresolved CSS file to: {new_file}")
         else:
-            print(f" [i] Copied the original remote CSS file to: {new_file}")
+            print(f" [i] Copying the original remote CSS file to: {new_file}")
         
         if os.path.isfile(new_file):
             prompt = input(f" [?] Do you want to overwrite {new_file}? [y/n]: ")
