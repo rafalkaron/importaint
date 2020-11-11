@@ -11,7 +11,7 @@ Compile a CSS file with imports into a resolved CSS file without imports.
       * `--minify` or `-m` - minify the resolved CSS
       * `--remove_comments` or `-rc` - remove `/* comments */` from the resolved CSS
       * `--copy` or `-c` - copy the resolved CSS output to system clipboard
-2. If needed, accept any security prompt. For more information, see [Accepting macOS Security Prompts](https://github.com/rafalkaron/importaint/wiki/Accepting-macOS-Security-Prompts) or [Accepting Windows Security Prompts](https://github.com/rafalkaron/importaint/wiki/Accepting-Windows-Security-Prompts)
+2. If needed, accept any security prompt. For more information, see [Accepting macOS Security Prompts](https://github.com/rafalkaron/importaint/wiki/Accepting-macOS-Security-Prompts) or [Accepting Windows Security Prompts](https://github.com/rafalkaron/importaint/wiki/Accepting-Windows-Security-Prompts).
 
 ## Example - Local File (Removed Comments)
 ```shell

@@ -121,34 +121,39 @@ def minify_code(output_str):
     return output_str
 
 def main():
-    par = argparse.ArgumentParser(description="Resolve imports in a CSS file")
+    par = argparse.ArgumentParser(description="Compile a CSS file with imports into a resolved CSS file without imports.")
+    par.add_argument("input_path", type=str, help="a filepath or URL to a CSS file with imports that you want to compile")
+    par.add_argument("-out", "--output", metavar="output_dir", help="manually specify the output folder. For remote files, defaults to desktop. For local files, defaults to the input file folder.")
+    par.add_argument("-m", "--minify", action="store_true", help="minify the compiled CSS")
+    par.add_argument("-rc", "--remove_comments", action="store_true", help="remove comments from the compiled CSS")
+    par.add_argument("-c", "--copy", action="store_true",help="copy the compiled CSS to clipboard")
     par.add_argument("-v", "--version", action="version", version=f"%(prog)s {__version__}")
-    par.add_argument("-m", "--minify", action="store_true", help="minify the resolved CSS output")
-    par.add_argument("-rc", "--remove_comments", action="store_true", help="remove comments from the resolved CSS output")
-    par.add_argument("-c", "--copy", action="store_true",help="copy the resolved CSS output to clipboard")
-    par.add_argument("input_filepath", type=str, help="provide a filepath to a CSS file with unresolved imports")
     args = par.parse_args()
 
-    if re_external_imports.match(args.input_filepath):
-        remote_file = os.path.basename(args.input_filepath)
-        new_file_folder = input("""Clone the external unresolved CSS by doing any of the following:
+    if re_external_imports.match(args.input_path):
+        remote_file = os.path.basename(args.input_path)
+        if not args.output:
+            output_dir = input("""Clone the external unresolved CSS by doing any of the following:
    * Enter the local directory in which you want to save the file
-   * Save the file on desktop by pressing [Enter] 
+   * Save the file to Desktop by pressing [Enter] 
 > """)
-        new_file = f"{new_file_folder}/{remote_file}"
-        if not os.path.isdir(new_file_folder):
+        new_file = f"{output_dir}/{remote_file}"
+        if not os.path.isdir(output_dir):
             new_file = f"{os.path.normpath(os.path.expanduser('~/Desktop'))}/{remote_file}"
             print(f" [i] No path or invalid path. Copying the external unresolved CSS file to: {new_file}")
         else:
-            print(f" [i] Copied the oroginal remote CSS file to: {new_file}")
-        save_str_as_file(read_external_file(args.input_filepath), new_file)
-        output_str = read_external_file(args.input_filepath)
+            print(f" [i] Copied the original remote CSS file to: {new_file}")
+        save_str_as_file(read_external_file(args.input_path), new_file)
+        output_str = read_external_file(args.input_path)
         output_filepath = os.path.abspath(new_file.replace(".css", "_compiled.css"))
         os.chdir(os.path.dirname(new_file))
     else:
-        output_str = read_file(args.input_filepath)
-        output_filepath = os.path.abspath(args.input_filepath.replace(".css", "_compiled.css"))
-        os.chdir(os.path.dirname(args.input_filepath))
+        output_str = read_file(args.input_path)
+        if args.output:
+            output_filepath = args.output + os.path.basename(args.input_path.replace(".css", "_compiled.css"))
+        if not args.output:
+            output_filepath = os.path.abspath(args.input_path.replace(".css", "_compiled.css"))
+        os.chdir(os.path.dirname(args.input_path))
 
     output_str = resolve_css_imports(output_str)
     output_str = move_font_imports(output_str)
