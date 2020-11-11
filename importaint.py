@@ -138,7 +138,7 @@ def main():
             output_dir = input("""Clone the external unresolved CSS by doing any of the following:
    * Enter the local directory in which you want to save the file
    * Save the file to Desktop by pressing [Enter] 
-> """)
+> """).replace("\"","").replace("\'","")
         new_file = f"{output_dir}/{remote_file}"
         if not os.path.isdir(output_dir):
             new_file = f"{os.path.normpath(os.path.expanduser('~/Desktop'))}/{remote_file}"
