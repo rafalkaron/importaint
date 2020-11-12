@@ -8,6 +8,7 @@ Compile a CSS file with imports into a resolved CSS file without imports.
 ## Usage
 1. In a terminal app, run **important** followed by the local path or URL to the CSS file that you want to compile.  
     **NOTE:** You can pass the following optional arguments to control the **importaint** behavior.
+      * `--output` or `-out` - define the output directory
       * `--minify` or `-m` - minify the resolved CSS
       * `--remove_comments` or `-rc` - remove `/* comments */` from the resolved CSS
       * `--copy` or `-c` - copy the resolved CSS output to system clipboard
