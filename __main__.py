@@ -14,10 +14,11 @@ from importaint import (read_file,
                         move_font_imports,
                         remove_empty_newlines,
                         remove_redundant_spaces,
-                        minify_code)
+                        minify_code,
+                        boolean_prompt)
 
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
-__version__ = "0.9.5"
+__version__ = "1.0"
 
 def main():
     par = argparse.ArgumentParser(description="Compile a CSS file with imports into a resolved CSS file without imports.")
@@ -47,12 +48,7 @@ def main():
         else:
             print(f" [i] Copying the original remote CSS file to: {new_file}")
         if os.path.isfile(new_file):
-            prompt = input(f" [?] Do you want to overwrite {new_file}? [y/n]: ")
-            if prompt == "y" or prompt == "Y":
-                pass
-            elif prompt != "y" or prompt != "Y":
-                print(f" [i] Cancelled.")
-                return False
+            boolean_prompt(f" [?] Do you want to overwrite {output_filepath}? [y/n]: ")
         save_str_as_file(read_external_file(args.input_path), new_file)
         output_str = read_external_file(args.input_path)
         output_filepath = os.path.abspath(new_file.replace(".css", "_compiled.css"))
@@ -84,12 +80,7 @@ def main():
         print(" [i] Copied the resolved CSS to clipboard.")
     
     if os.path.isfile(output_filepath):
-        prompt = input(f" [?] Do you want to overwrite {output_filepath}? [y/n]: ")
-        if prompt == "y" or prompt == "Y":
-            pass
-        elif prompt != "y" or prompt != "Y":
-            print(f" [i] Cancelled.")
-            return False
+        boolean_prompt(f" [?] Do you want to overwrite {output_filepath}? [y/n]: ")
     save_str_as_file(output_str, output_filepath)
     print(f" [✔] Saved the resolved CSS to: {output_filepath}")
     
