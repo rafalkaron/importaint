@@ -2,8 +2,8 @@
 Compile a CSS file with imports into a resolved CSS file without imports.
 
 ## Before you begin
-* Download the latest **importaint** version. See [Download](https://github.com/rafalkaron/importaint/releases/latest).
-* Unzip **importaint**.
+1. Download the latest **importaint** version. See [Download](https://github.com/rafalkaron/importaint/releases/latest).
+1. Unzip **importaint**.
 
 ## Usage
 1. In a terminal app, run **important** followed by the local path or URL to the CSS file that you want to compile.  
@@ -30,3 +30,13 @@ importaint "https://mysite.com/styles/style.css" --minify --copy
 In the local directory that you are prompted about:
   * The remote unresolved CSS file is downloaded
   * A new resolved and minified CSS file is created
+
+## Example - Remote File (Custom output folder)
+```shell
+importaint "https://mysite.com/styles/style.css" -out "C:\MyStyles\StyleA"
+```
+
+### Result
+In the output directory that you provided (`C:\MyStyles\StyleA`)
+  * The remote unresolved CSS file is downloaded
+  * A new resolved CSS file is created
