@@ -82,7 +82,7 @@ def main():
     if os.path.isfile(output_filepath):
         boolean_prompt(f" [?] Do you want to overwrite {output_filepath}? [y/n]: ")
     save_str_as_file(output_str, output_filepath)
-    print(f" [✔] Saved the resolved CSS to: {output_filepath}")
+    print(f" [i] Saved the resolved CSS to: {output_filepath}")
     
 if __name__ == "__main__":
     main()
