@@ -21,6 +21,7 @@ def save_str_as_file(string, filepath):
     return filepath
 
 def boolean_prompt(prompt_str):
+    """Exit program on any other response than 'y' or 'Y'"""
     prompt = input(prompt_str)
     if prompt == "y" or prompt == "Y":
         pass

@@ -48,7 +48,7 @@ def main():
         else:
             print(f" [i] Copying the original remote CSS file to: {new_file}")
         if os.path.isfile(new_file):
-            boolean_prompt(f" [?] Do you want to overwrite {output_filepath}? [y/n]: ")
+            boolean_prompt(f" [?] Do you want to overwrite {new_file}? [y/n]: ")
         save_str_as_file(read_external_file(args.input_path), new_file)
         output_str = read_external_file(args.input_path)
         output_filepath = os.path.abspath(new_file.replace(".css", "_compiled.css"))
