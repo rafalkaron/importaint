@@ -13,30 +13,32 @@ Compile a CSS file with imports into a resolved CSS file without imports.
       * `--copy` or `-c` - copy the resolved CSS output to system clipboard
 2. If needed, accept any security prompt. For more information, see [Accepting macOS Security Prompts](https://github.com/rafalkaron/importaint/wiki/Accepting-macOS-Security-Prompts) or [Accepting Windows Security Prompts](https://github.com/rafalkaron/importaint/wiki/Accepting-Windows-Security-Prompts).
 
-## Example - Local File (Removed Comments)
+## Examples
+
+### Local File - compiled without comments
 ```shell
 importaint "C:\GitHub\styling\style.css" --remove_comments
 ```
 
-### Result
+#### Result
 In the original CSS file directory, a new resolved CSS file without `/* comments */` is created: `C:\GitHub\styling\style_compiled.css`
 
-## Example - Remote File (Minified and Copied)
+### Remote File - compiled, minified, and copied to clipboard
 ```shell
 importaint "https://mysite.com/styles/style.css" --minify --copy
 ```
 
-### Result
+#### Result
 In the local directory that you are prompted about:
   * The remote unresolved CSS file is downloaded
   * A new resolved and minified CSS file is created
 
-## Example - Remote File (Custom output folder)
+### Remote file - compiled and saved to a custom output folder
 ```shell
 importaint "https://mysite.com/styles/style.css" -out "C:\MyStyles\StyleA"
 ```
 
-### Result
+#### Result
 In the output directory that you provided (`C:\MyStyles\StyleA`)
   * The remote unresolved CSS file is downloaded
   * A new resolved CSS file is created
