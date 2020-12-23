@@ -18,7 +18,7 @@ from importaint import (read_file,
                         boolean_prompt)
 
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
-__version__ = "1.0"
+__version__ = "1.1"
 
 def main():
     par = argparse.ArgumentParser(description="Compile a CSS file with imports into a resolved CSS file without imports.")
