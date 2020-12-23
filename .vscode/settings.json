@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "/Users/rafalkaron/.pyenv/shims/python",
+    "python.pythonPath": "/Users/rafalkaron/.pyenv/versions/3.7.6/bin/python",
     "spellright.language": [
         "en"
     ],

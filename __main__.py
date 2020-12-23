@@ -5,7 +5,7 @@ Compile a CSS file with imports into a resolved CSS file without imports.
 
 import argparse
 import os
-import re
+import regex as re # needed for Windows builds
 import pyperclip
 from importaint import (read_file,
                         read_external_file,

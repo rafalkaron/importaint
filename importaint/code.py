@@ -1,7 +1,7 @@
 # coding utf-8
 __author__ = "Rafał Karoń <rafalkaron@gmail.com>"
 
-import re
+import regex as re # needed for Windows builds
 import css_html_js_minify
 import sys
 import os
