@@ -9,7 +9,7 @@ from .files import (read_external_file,
                     read_file)
 
 #re_css_imports = re.compile(r"(@import url\((\"|\')(.*.css)(\"|\')\);)")
-re_css_imports = re.compile(r"(@import.*(\"|\')(.*.css)(\"|\');)")
+re_css_imports = re.compile(r"(@import.*(\"|\')(.*.css)(\"|\').*;)")
 re_external_imports = re.compile(r"(https://|http://|ftp://)")
 re_all_imports = re.compile(r"(@import url\((\"|\').*(\"|\')\);)")
 re_font_imports_placeholder = re.compile(r"/\* imports placeholder \*/")
